@@ -1,0 +1,34 @@
+name: TCP Test
+on: 
+  workflow_dispatch:
+  watch:
+    types: started
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout Private Source Repository
+        uses: actions/checkout@v3
+        with:
+          repository: endless-hu/6.824
+          token: ${{ secrets.GH_PAT }}
+          path: my_repo
+
+      - name: Checkout This Repository
+        uses: actions/checkout@v3
+        with:
+          path: this_repo
+
+      - name: Set Up Build Environment
+        run: bash this_repo/setup_dev_env.sh
+
+      - name: Test TCP
+        run: |
+          cd $GITHUB_WORKSPACE/my_repo
+          mkdir build
+          cd build
+          cmake ..
+          make -j 2
+          make check_lab4
+          ./apps/tcp_benchmark
